@@ -1,4 +1,5 @@
 const db = require("../config/db")
+const Cripto = require('../helpers/cripto')
 
 module.exports = class Usuario{
   constructor(){
@@ -8,8 +9,8 @@ module.exports = class Usuario{
     this.senha = ""
   }
 
-  static async login(login, senha){
-    let usuarios = await db.exec("select id, nome, login, senha from usuarios where login='" + login +  "' and senha='" + senha + "' ")
+  static async login(login){
+    let usuarios = await db.exec("select id, nome, login, senha from usuarios where login=?", [login])
     return usuarios[0];
   }
 
@@ -18,16 +19,23 @@ module.exports = class Usuario{
   }
 
   static async busca(id){
-    return await db.exec("select id, nome, login, senha from usuarios where id = " + id)
+    return await db.exec("select id, nome, login, senha from usuarios where id = ?", [id])
   }
 
   static async apagar(id){
-    return await db.exec("delete from usuarios where id = " + id)
+    return await db.exec("delete from usuarios where id = ?", [id])
   }
 
   async salvar(){
+    if(!this.senha || this.senha == ""){
+      throw { message: "Senha obrigatória"}
+    }
+
+    this.nome = this.nome.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+
+    this.senha = Cripto.make(this.senha)
     try {
-      await db.exec(`insert into usuarios(nome, login, senha) values('${this.nome}', '${this.login}', '${this.senha}')`)
+      await db.exec(`insert into usuarios(nome, login, senha) values(?, ?, ?)`, [this.nome, this.login, this.senha])
     }
     catch(e){
       if(e.message.indexOf("Duplicate entry") !== -1){
@@ -38,8 +46,14 @@ module.exports = class Usuario{
   }
 
   async atualizar(){
+    if(!this.senha || this.senha == ""){
+      throw { message: "Senha obrigatória"}
+    }
+    this.nome = this.nome.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    
+    this.senha = Cripto.make(this.senha)
     try {
-      await db.exec(`update usuarios set nome='${this.nome}', login='${this.login}', senha='${this.senha}' where id = ${this.id}`)
+      await db.exec(`update usuarios set nome=?, login=?, senha=? where id = ?`, [this.nome, this.login, this.senha, this.id])
     }
     catch(e){
       if(e.message.indexOf("Duplicate entry") !== -1){
