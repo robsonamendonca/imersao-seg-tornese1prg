@@ -1,29 +1,29 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Usuarios</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-  </head>
-  <body>
+<%- include("../compartilhado/header") %>
     <h1>Usuarios</h1>
     <hr>
     <a href="/usuarios/novo" class="btn btn-primary">Novo Usuário</a>
     <br>
+    <% if(sucesso != ""){ %>
+      <br>
+      <div class="alert alert-success"><%= sucesso %></div>
+    <% } %>
     <br>
     <table class="table">
       <tr>
         <th>Nome</th>
         <th>Login</th>
         <th>Senha</th>
+        <th></th>
+        <th></th>
       </tr>
       <% for(let i=0; i<usuarios.length; i++ ){ %>
       <tr>
         <td><%= usuarios[i].nome %></td>
         <td><%= usuarios[i].login %></td>
         <td><%= usuarios[i].senha %></td>
+        <td style="width:50px"><a href="/usuarios/<%= usuarios[i].id %>" class="btn btn-primary">Editar</a></td>
+        <td style="width:50px"><a href="#" onclick="if(confirm('Confirma?')){ window.location.href='/usuarios/<%= usuarios[i].id %>/delete'; }" class="btn btn-danger">Excluir</a></td>
       </tr>
       <% } %>
       </table>
-  </body>
-</html>
+<%- include("../compartilhado/header") %>
